@@ -47,7 +47,7 @@ It must:
 | Endpoint install and repair | **Build** because no standard endpoint package covers this gap. |
 | Brownfield migration | **Build** because existing products do not safely merge developer AI tool configs. |
 | Drift detection | **Build** because AI coding-tool drift detection is not standardized. |
-| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, and local context hygiene. |
+| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, graphify, and local context hygiene. |
 | Project standards and tests | **Build thin standardization layer** that installs/verifies repo-level standards, canonical commands, and CI check expectations. |
 
 ---
@@ -61,7 +61,7 @@ It must:
 | **endpoint-core** | installer, managed-settings compiler, gateway verification, drift engine, audit logger, MDM artifact generator, doctor/repair/inventory | Minimal endpoint orchestration layer. | Required for harness operation. |
 | **delivery-method** | BMAD-METHOD, agent-os, roborev, Claude Code Review setup guidance | Planning, repo conventions, review/fix/refine loops, and PR-review guidance. | Optional unless admin marks required. |
 | **security-preflight** | security-guidance, Bumblebee, optional eliate fallback | Official Claude security hook, endpoint/MCP/package inventory, fallback guidance where official controls are unavailable. | Optional unless admin marks required. |
-| **token-efficiency** | RTK, Caveman, claude-mem | Shell-output compression, adaptive token-efficiency control, and selective continuity memory. | Optional unless admin marks required. |
+| **token-efficiency** | RTK, Caveman, claude-mem, graphify | Shell-output compression, adaptive token-efficiency control, selective continuity memory, and codebase knowledge-graph recall. | Optional unless admin marks required. |
 | **project-standards-lite** | light boilerplate templates, versioned standards bundle, canonical command declarations, CI template/check declarations | Admin-managed starter standards for projects using the harness. | Optional unless admin marks required. |
 
 Component roles:
@@ -78,6 +78,7 @@ Component roles:
 | **RTK** | Shell-output compression and token reduction layer. |
 | **Caveman** | Adaptive token-efficiency controller. Caveman should be treated as context-aware rather than a simple terse-mode toggle. |
 | **claude-mem** | Selective continuity and retrieval memory. |
+| **graphify** | Local codebase/repo knowledge-graph builder. Extracts a persistent graph (entities, relationships, community detection, god nodes) from code and docs into `graphify-out/graph.json`, and exposes query/path/explain plus an optional MCP stdio server for token-efficient context recall instead of repeated full-file reads. See <https://github.com/safishamsi/graphify>. |
 | **eliate** | Optional fallback if official Claude plugin/security mechanisms are unavailable or insufficient. Not part of the default path. |
 
 ---
@@ -92,7 +93,7 @@ Component roles:
 2. **Claude Code baseline configurator** that emits native managed-settings artifacts for local settings, plugins, hooks, and conventions.
 3. **Cloudflare AI Gateway enforcer** for endpoint routing.
 4. **Local posture checker** for plugins, MCP servers, permissions, token-efficiency tools, and brownfield drift.
-5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, prompt/output defaults, and session hygiene.
+5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, graphify, prompt/output defaults, and session hygiene.
 6. **OTel-compatible or SIEM-friendly audit emitter** for session, admin, unsafe-action, drift, and gateway events.
 7. **MDM-native artifact generator** that remains MDM-agnostic while producing deployable files/scripts for common MDMs.
 8. **Developer repair tool** that provides `doctor`, `repair`, `inventory`, and `explain-policy` commands.
@@ -691,8 +692,20 @@ Install and configure:
 - RTK for shell-output compression.
 - Caveman as adaptive context/token controller.
 - claude-mem as selective retrieval memory.
+- graphify as codebase/repo knowledge-graph builder for token-efficient context recall.
 - Baseline prompt/output guidance for concise default behavior.
 - Session handoff summaries for long tasks.
+
+### Codebase knowledge-graph recall (graphify)
+
+graphify reduces token cost by replacing repeated full-file reads with graph-scoped recall. The harness bootstraps it as a thin integration:
+
+- Install graphify on the endpoint (no org code is transmitted; extraction is local, and semantic extraction runs through the host Claude Code session — no separate provider key is required).
+- Build a per-repo graph into `graphify-out/` (`graph.json`, `GRAPH_REPORT.md`, optional `graph.html`) on demand or via the post-commit rebuild hook.
+- Expose recall through `graphify query`, `graphify path`, `graphify explain`, or the optional `graphify --mcp` stdio server so Claude Code retrieves graph-scoped context instead of whole files.
+- Treat `graphify-out/` as a local cache artifact: it is excluded from managed-settings sync and from audit log payloads, and its build state/version is inventoried like other token-efficiency tools.
+
+Policy controls whether graphify is installed, whether the post-commit rebuild hook is enabled, and whether MCP server mode is allowed.
 
 ### Local policy knobs
 
@@ -704,6 +717,9 @@ Example:
     "install_rtk": true,
     "install_caveman": true,
     "install_claude_mem": true,
+    "install_graphify": true,
+    "graphify_post_commit_rebuild": true,
+    "graphify_mcp_enabled": false,
     "default_output_style": "concise",
     "handoff_summary_required": true,
     "max_thinking_tokens": 10000,
@@ -714,7 +730,7 @@ Example:
 
 ### Guardrail note
 
-RTK, Caveman, and claude-mem alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift.
+RTK, Caveman, claude-mem, and graphify alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift. For graphify, also treat `graphify-out/` as a local-only cache that must not be synced as managed state or emitted in audit payloads.
 
 ---
 
@@ -1332,7 +1348,8 @@ This manifest must not be treated as a replacement for Claude Code managed setti
     "bumblebee": {"profile": "security_preflight", "state": "optional"},
     "rtk": {"profile": "token_efficiency", "state": "optional"},
     "caveman": {"profile": "token_efficiency", "state": "optional"},
-    "claude_mem": {"profile": "token_efficiency", "state": "optional"}
+    "claude_mem": {"profile": "token_efficiency", "state": "optional"},
+    "graphify": {"profile": "token_efficiency", "state": "optional"}
   },
   "plugins": {
     "required": ["security-guidance@claude-plugins-official"],
@@ -1349,6 +1366,9 @@ This manifest must not be treated as a replacement for Claude Code managed setti
     "install_rtk": true,
     "install_caveman": true,
     "install_claude_mem": true,
+    "install_graphify": true,
+    "graphify_post_commit_rebuild": true,
+    "graphify_mcp_enabled": false,
     "default_output_style": "concise",
     "handoff_summary_required": true
   },
@@ -1402,6 +1422,7 @@ This manifest must not be treated as a replacement for Claude Code managed setti
 5. Security guidance plugin available.
 6. Token-efficiency tools installed.
 7. claude-mem store present and writable.
+8. graphify installed and, where its profile is enabled, a current `graphify-out/graph.json` is present or rebuildable.
 8. Bumblebee scan available.
 9. No denied MCP servers active.
 10. No denied bypass flags detected in common shell aliases.
@@ -1537,6 +1558,7 @@ Build admin-policy-driven installers/checkers for optional profiles and componen
 - RTK.
 - Caveman.
 - claude-mem.
+- graphify.
 
 ### Phase 4: Gateway and wrapper
 
@@ -1617,8 +1639,9 @@ Build:
 
 ### Token efficiency
 
-- RTK, Caveman, and claude-mem install state is detectable.
+- RTK, Caveman, claude-mem, and graphify install state is detectable.
 - Token-efficiency tools are installed or reported missing when the token-efficiency profile is required by admin policy.
+- graphify can build a repo knowledge graph and answer recall queries; `graphify-out/` is treated as a local cache and excluded from managed sync and audit payloads.
 - Handoff-summary guidance is present when the token-efficiency profile is enabled.
 
 ### Project standards lite profile

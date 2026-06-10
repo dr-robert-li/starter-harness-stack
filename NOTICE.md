@@ -80,6 +80,12 @@ For each component:
 - **Upstream:** See upstream project repository for current canonical source and license.
 - **License:** See upstream LICENSE.
 
+### graphify
+
+- **Role:** Local codebase/repo knowledge-graph builder for token-efficient context recall; optional component of the `token-efficiency` profile. Extracts a persistent graph into `graphify-out/` and exposes query/path/explain plus an optional MCP stdio server.
+- **Upstream:** <https://github.com/safishamsi/graphify>.
+- **License:** See upstream LICENSE.
+
 ### eliate (fallback)
 
 - **Role:** Optional fallback used only when the official Claude plugin/security mechanisms are unavailable or insufficient. Not part of the default installation path.
