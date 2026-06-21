@@ -32,6 +32,12 @@ For each component:
 - **Upstream:** See upstream project repository for current canonical source and license.
 - **License:** See upstream LICENSE.
 
+### GSD Core
+
+- **Role:** Meta-prompting, context-engineering, and spec-driven development system that drives Claude Code (and other AI coding runtimes) through a Discuss → Plan → Execute → Verify → Ship phase loop; optional component of the `delivery-method` profile. Distributed as the npm package `@opengsd/gsd-core` and installed via its own installer (`npx @opengsd/gsd-core@latest`), which transforms agent/command files into each runtime's native format.
+- **Upstream:** <https://github.com/open-gsd/gsd-core>.
+- **License:** MIT. See upstream LICENSE.
+
 ### FastMCP
 
 - **Role:** MCP integration framework and optional local MCP templates; component of the `delivery-method` profile.
@@ -78,12 +84,6 @@ For each component:
 
 - **Role:** Selective continuity and retrieval memory; optional component of the `token-efficiency` profile.
 - **Upstream:** See upstream project repository for current canonical source and license.
-- **License:** See upstream LICENSE.
-
-### graphify
-
-- **Role:** Local codebase/repo knowledge-graph builder for token-efficient context recall; optional component of the `token-efficiency` profile. Extracts a persistent graph into `graphify-out/` and exposes query/path/explain plus an optional MCP stdio server.
-- **Upstream:** <https://github.com/safishamsi/graphify>.
 - **License:** See upstream LICENSE.
 
 ### eliate (fallback)

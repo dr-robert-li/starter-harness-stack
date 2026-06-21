@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Migrated the planning/delivery layer from the abandoned `get-shit-done` lineage (referenced as `@opengsd/get-shit-done-redux`, the package later renamed to `get-shit-done-cc`) to its maintained successor **GSD Core** (`@opengsd/gsd-core`, MIT). GSD Core is a meta-prompting, context-engineering, and spec-driven development system that drives Claude Code through a Discuss → Plan → Execute → Verify → Ship phase loop. Updated the bootstrap install command to `npx @opengsd/gsd-core@latest` and added GSD Core to the `delivery-method` profile in `README.md`, `PROJECT_SPEC.md`, and `NOTICE.md`.
+
+### Removed
+
+- Removed **graphify** (formerly an optional component of the `token-efficiency` profile and a PyPI tool `graphifyy`) from all component lists, profile definitions, policy/config examples, third-party notices, and the `.gitignore` (`graphify-out/`) because it did not provide working functionality in this stack. Historical note: graphify was never part of the v0.1.0 release attributions below; it had been introduced in later specification drafts and is now fully removed.
+
 ## [0.1.0] — 2026-05-28
 
 Initial specification release. No runtime code is shipped in this version; the deliverable is the authoritative v1 design plus repository scaffolding.

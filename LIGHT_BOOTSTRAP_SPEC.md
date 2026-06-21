@@ -22,8 +22,10 @@ Run the following in your shell:
 ```bash
 set -euo pipefail
 
-# 1. Productive & Execution Layers (OpenGSD Core Engine)
-npx -y @opengsd/get-shit-done-redux@latest
+# 1. Planning & Delivery Layer (GSD Core)
+# Meta-prompting, context-engineering, and spec-driven development for Claude Code.
+# The installer prompts for runtime (use --claude --global for non-interactive installs).
+npx @opengsd/gsd-core@latest
 
 # 2. Review & Refinement Loop (Roborev)
 curl -fsSL https://roborev.io/install.sh | bash
@@ -36,13 +38,7 @@ npx -y skills add JuliusBrussee/caveman
 curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
 rtk init --global
 
-# 4. Local Knowledge Graph (Graphify)
-# Official PyPI package is graphifyy (double y); CLI command remains graphify.
-pipx install graphifyy
-graphify install
-graphify hook install
-
-# 5. FastMCP
+# 4. FastMCP
 # Python package
 pipx install fastmcp
 # or: uv tool install fastmcp
@@ -50,7 +46,7 @@ pipx install fastmcp
 # TypeScript package
 npm install -g @prefecthq/fastmcp-ts
 
-# 6. Supply Chain Security Scanner (Bumblebee by Perplexity AI)
+# 5. Supply Chain Security Scanner (Bumblebee by Perplexity AI)
 go install github.com/perplexityai/bumblebee/cmd/bumblebee@latest
 
 # Optional verification
@@ -71,8 +67,7 @@ Run this inside a Claude Code session, not in your normal shell:
 
 ## Notes
 
-- `graphifyy` is the correct package name on PyPI; the executable remains `graphify`.
-- `graphify install` registers the skill, and `graphify hook install` sets up automatic graph maintenance hooks.
+- GSD Core is published as `@opengsd/gsd-core` on npm (MIT). The installer rewrites agent/command files into each runtime's native format, so do not copy files from `agents/` or `commands/` directly. After install, start a project with `/gsd-new-project`.
 - The security-guidance install uses Claude Code's plugin command flow, not a normal shell command.
 - FastMCP's Python package is `fastmcp`; the official TypeScript package is `@prefecthq/fastmcp-ts`.
 - Bumblebee requires Go 1.25+ and is installed via `go install github.com/perplexityai/bumblebee/cmd/bumblebee@latest`.
