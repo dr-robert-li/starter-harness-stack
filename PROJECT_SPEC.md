@@ -47,7 +47,7 @@ It must:
 | Endpoint install and repair | **Build** because no standard endpoint package covers this gap. |
 | Brownfield migration | **Build** because existing products do not safely merge developer AI tool configs. |
 | Drift detection | **Build** because AI coding-tool drift detection is not standardized. |
-| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, and local context hygiene. |
+| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, Headroom, and local context hygiene. |
 | Project standards and tests | **Build thin standardization layer** that installs/verifies repo-level standards, canonical commands, and CI check expectations. |
 
 ---
@@ -61,7 +61,7 @@ It must:
 | **endpoint-core** | installer, managed-settings compiler, gateway verification, drift engine, audit logger, MDM artifact generator, doctor/repair/inventory | Minimal endpoint orchestration layer. | Required for harness operation. |
 | **delivery-method** | BMAD-METHOD, agent-os, GSD Core, roborev, Claude Code Review setup guidance | Planning, repo conventions, spec-driven phase workflow, review/fix/refine loops, and PR-review guidance. | Optional unless admin marks required. |
 | **security-preflight** | security-guidance, Bumblebee, optional eliate fallback | Official Claude security hook, endpoint/MCP/package inventory, fallback guidance where official controls are unavailable. | Optional unless admin marks required. |
-| **token-efficiency** | RTK, Caveman, claude-mem | Shell-output compression, adaptive token-efficiency control, and selective continuity memory. | Optional unless admin marks required. |
+| **token-efficiency** | RTK, Caveman, claude-mem, Headroom | Shell-output compression, adaptive token-efficiency control, selective continuity memory, and context compression. | Optional unless admin marks required. |
 | **project-standards-lite** | light boilerplate templates, versioned standards bundle, canonical command declarations, CI template/check declarations | Admin-managed starter standards for projects using the harness. | Optional unless admin marks required. |
 
 Component roles:
@@ -79,6 +79,7 @@ Component roles:
 | **RTK** | Shell-output compression and token reduction layer. |
 | **Caveman** | Adaptive token-efficiency controller. Caveman should be treated as context-aware rather than a simple terse-mode toggle. |
 | **claude-mem** | Selective continuity and retrieval memory. |
+| **Headroom** | Context compression layer for AI agents that reduces tokens in tool outputs, logs, files, retrieval chunks, and conversation history before they reach the model, with reversible compression that caches originals locally for on-demand retrieval. Distributed as `headroom-ai` (Apache 2.0); the Python package (`pip install "headroom-ai[all]"`, Python 3.10+) provides the `headroom` CLI, proxy, agent-wrapping, and MCP-server modes, while the npm package (`npm install headroom-ai`) is library-only with no CLI. Fetches runtime assets (ONNX runtime and the compression model) over TLS, which is relevant on locked-down or SSL-inspecting endpoints. See <https://github.com/headroomlabs-ai/headroom>. |
 | **eliate** | Optional fallback if official Claude plugin/security mechanisms are unavailable or insufficient. Not part of the default path. |
 
 ---
@@ -93,7 +94,7 @@ Component roles:
 2. **Claude Code baseline configurator** that emits native managed-settings artifacts for local settings, plugins, hooks, and conventions.
 3. **Cloudflare AI Gateway enforcer** for endpoint routing.
 4. **Local posture checker** for plugins, MCP servers, permissions, token-efficiency tools, and brownfield drift.
-5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, prompt/output defaults, and session hygiene.
+5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, Headroom, prompt/output defaults, and session hygiene.
 6. **OTel-compatible or SIEM-friendly audit emitter** for session, admin, unsafe-action, drift, and gateway events.
 7. **MDM-native artifact generator** that remains MDM-agnostic while producing deployable files/scripts for common MDMs.
 8. **Developer repair tool** that provides `doctor`, `repair`, `inventory`, and `explain-policy` commands.
@@ -692,6 +693,7 @@ Install and configure:
 - RTK for shell-output compression.
 - Caveman as adaptive context/token controller.
 - claude-mem as selective retrieval memory.
+- Headroom as a context compression layer for tool outputs, logs, files, retrieval chunks, and conversation history, with reversible compression backed by a local original cache.
 - Baseline prompt/output guidance for concise default behavior.
 - Session handoff summaries for long tasks.
 
@@ -705,6 +707,7 @@ Example:
     "install_rtk": true,
     "install_caveman": true,
     "install_claude_mem": true,
+    "install_headroom": true,
     "default_output_style": "concise",
     "handoff_summary_required": true,
     "max_thinking_tokens": 10000,
@@ -715,7 +718,7 @@ Example:
 
 ### Guardrail note
 
-RTK, Caveman, and claude-mem alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift.
+RTK, Caveman, claude-mem, and Headroom alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift. Headroom warrants extra attention because it fetches runtime assets (ONNX runtime and its compression model) over TLS and caches original, uncompressed content locally to support reversible retrieval; on locked-down or SSL-inspecting endpoints the asset fetch may require trusting a corporate CA, and the local original cache should be covered by the same redaction and privacy rules as other context stores.
 
 ---
 
@@ -1334,7 +1337,8 @@ This manifest must not be treated as a replacement for Claude Code managed setti
     "bumblebee": {"profile": "security_preflight", "state": "optional"},
     "rtk": {"profile": "token_efficiency", "state": "optional"},
     "caveman": {"profile": "token_efficiency", "state": "optional"},
-    "claude_mem": {"profile": "token_efficiency", "state": "optional"}
+    "claude_mem": {"profile": "token_efficiency", "state": "optional"},
+    "headroom": {"profile": "token_efficiency", "state": "optional"}
   },
   "plugins": {
     "required": ["security-guidance@claude-plugins-official"],
@@ -1351,6 +1355,7 @@ This manifest must not be treated as a replacement for Claude Code managed setti
     "install_rtk": true,
     "install_caveman": true,
     "install_claude_mem": true,
+    "install_headroom": true,
     "default_output_style": "concise",
     "handoff_summary_required": true
   },
@@ -1540,6 +1545,7 @@ Build admin-policy-driven installers/checkers for optional profiles and componen
 - RTK.
 - Caveman.
 - claude-mem.
+- Headroom.
 
 ### Phase 4: Gateway and wrapper
 
@@ -1620,7 +1626,7 @@ Build:
 
 ### Token efficiency
 
-- RTK, Caveman, and claude-mem install state is detectable.
+- RTK, Caveman, claude-mem, and Headroom install state is detectable.
 - Token-efficiency tools are installed or reported missing when the token-efficiency profile is required by admin policy.
 - Handoff-summary guidance is present when the token-efficiency profile is enabled.
 
