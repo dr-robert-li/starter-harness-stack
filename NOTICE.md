@@ -86,6 +86,12 @@ For each component:
 - **Upstream:** See upstream project repository for current canonical source and license.
 - **License:** See upstream LICENSE.
 
+### Headroom
+
+- **Role:** Context compression layer that reduces tokens in tool outputs, logs, files, retrieval chunks, and conversation history before they reach the model; optional component of the `token-efficiency` profile. Distributed as `headroom-ai`. The Python package (`pip install "headroom-ai[all]"`, Python 3.10+) provides the `headroom` CLI plus library, proxy, agent-wrapping, and MCP-server modes; the npm package (`npm install headroom-ai`) is library-only and ships no CLI. Reversible compression caches original content locally, and runtime assets (ONNX runtime and the compression model) are fetched over TLS at install/runtime, which is relevant on locked-down or SSL-inspecting endpoints. Optional extras (e.g. the `[vector]` HNSW backend) require a C++ toolchain, and LiteLLM-based dollar-savings tracking has its own Python-version constraints. Verify version, extras, and any managed/self-hosted offering terms at integration time.
+- **Upstream:** <https://github.com/headroomlabs-ai/headroom>.
+- **License:** Apache 2.0. See upstream LICENSE for authoritative terms.
+
 ### eliate (fallback)
 
 - **Role:** Optional fallback used only when the official Claude plugin/security mechanisms are unavailable or insufficient. Not part of the default installation path.

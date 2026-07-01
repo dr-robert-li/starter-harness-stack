@@ -32,11 +32,16 @@ curl -fsSL https://roborev.io/install.sh | bash
 roborev init
 roborev skills install
 
-# 3. Token Optimization (Caveman & RTK)
+# 3. Token Optimization (Caveman, RTK & Headroom)
 npx -y skills add JuliusBrussee/caveman
 
 curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
 rtk init --global
+
+# Headroom context compression layer (Python 3.10+; CLI ships with the Python package only).
+# Use pipx for an isolated CLI install; the npm package is library-only and has no CLI.
+pipx install "headroom-ai[all]"
+# or: uv tool install "headroom-ai[all]"
 
 # 4. FastMCP
 # Python package
@@ -71,3 +76,4 @@ Run this inside a Claude Code session, not in your normal shell:
 - The security-guidance install uses Claude Code's plugin command flow, not a normal shell command.
 - FastMCP's Python package is `fastmcp`; the official TypeScript package is `@prefecthq/fastmcp-ts`.
 - Bumblebee requires Go 1.25+ and is installed via `go install github.com/perplexityai/bumblebee/cmd/bumblebee@latest`.
+- Headroom (`headroom-ai`, Apache 2.0) is a context compression layer for AI agents. The `headroom` CLI ships only with the Python package (Python 3.10+); the npm package is library-only. It fetches runtime assets (ONNX runtime and its compression model) over TLS on first use, so on SSL-inspecting endpoints you may need to trust a corporate CA (and set `HEADROOM_TLS_STRICT=0` under Python 3.13+ strict TLS). See <https://github.com/headroomlabs-ai/headroom>.

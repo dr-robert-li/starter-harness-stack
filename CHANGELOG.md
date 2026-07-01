@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Added **Headroom** (`headroom-ai`, Apache 2.0) as an optional component of the `token-efficiency` profile. Headroom is a context compression layer for AI agents that reduces tokens in tool outputs, logs, files, retrieval chunks, and conversation history before they reach the model, with reversible compression that caches originals locally for on-demand retrieval. Documented its role, install assumptions (the `headroom` CLI ships only with the Python package via `pip install "headroom-ai[all]"` on Python 3.10+; the npm package is library-only), and endpoint-relevant caveats (TLS-fetched runtime assets and local original cache) across `README.md`, `PROJECT_SPEC.md` (build-vs-adopt table, profile table, component roles, token-efficiency controls, policy/config example, Phase 3 installers, and acceptance criteria), `LIGHT_BOOTSTRAP_SPEC.md`, and `NOTICE.md` (with upstream URL <https://github.com/headroomlabs-ai/headroom> and Apache 2.0 attribution).
+
 ### Changed
+
+- Documentation staleness sweep: verified that references to the removed `graphify`/`graphifyy` tool and the abandoned `get-shit-done` lineage now survive only as historical context in this changelog, and confirmed the `token-efficiency` profile, component lists, and policy/config examples are consistent across `README.md`, `PROJECT_SPEC.md`, `LIGHT_BOOTSTRAP_SPEC.md`, and `NOTICE.md`.
 
 - Migrated the planning/delivery layer from the abandoned `get-shit-done` lineage (referenced as `@opengsd/get-shit-done-redux`, the package later renamed to `get-shit-done-cc`) to its maintained successor **GSD Core** (`@opengsd/gsd-core`, MIT). GSD Core is a meta-prompting, context-engineering, and spec-driven development system that drives Claude Code through a Discuss → Plan → Execute → Verify → Ship phase loop. Updated the bootstrap install command to `npx @opengsd/gsd-core@latest` and added GSD Core to the `delivery-method` profile in `README.md`, `PROJECT_SPEC.md`, and `NOTICE.md`.
 
