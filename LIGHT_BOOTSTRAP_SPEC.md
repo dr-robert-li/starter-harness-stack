@@ -62,10 +62,18 @@ bumblebee selftest
 
 ## 🔐 Claude Code Plugin Step
 
-Run this inside a Claude Code session, not in your normal shell:
+Run these inside a Claude Code session, not in your normal shell:
 
 ```text
+# Security plugin (security-preflight profile)
 /plugin install security-guidance@claude-plugins-official
+
+# Ponytail — code-minimization / token-efficiency (required when the token-efficiency profile is enabled)
+/plugin marketplace add DietrichGebert/ponytail
+/plugin install ponytail@ponytail
+
+# Superpowers — optional delivery-method methodology (composable skills, TDD, subagent-driven development)
+/plugin install superpowers@claude-plugins-official
 ```
 
 ---
@@ -74,6 +82,8 @@ Run this inside a Claude Code session, not in your normal shell:
 
 - GSD Core is published as `@opengsd/gsd-core` on npm (MIT). The installer rewrites agent/command files into each runtime's native format, so do not copy files from `agents/` or `commands/` directly. After install, start a project with `/gsd-new-project`.
 - The security-guidance install uses Claude Code's plugin command flow, not a normal shell command.
+- Ponytail (MIT) is a code-minimization layer that steers the agent toward writing less code (reuse over rewrite, stdlib/native features over new dependencies, YAGNI) while preserving security, data-loss, and accessibility guardrails. It installs via the Claude Code plugin flow — add the marketplace first (`/plugin marketplace add DietrichGebert/ponytail`), then install (`/plugin install ponytail@ponytail`); these are two separate prompts. Its always-on activation runs two small Node.js lifecycle hooks, so keep `node` on `PATH` (without it the skills still work, but auto-activation stays quiet). Mode is `full` by default and adjustable with `/ponytail [lite|full|ultra|off]` or `PONYTAIL_DEFAULT_MODE`; no config file is required. It is a required component of the `token-efficiency` profile when that profile is enabled. See <https://github.com/DietrichGebert/ponytail>.
+- Superpowers (MIT) is an optional delivery-method component: a composable-skills software-development methodology (brainstorming/spec extraction, git-worktree isolation, bite-sized plans, subagent-driven development, red/green TDD, code review, branch cleanup). It installs via the Claude Code plugin flow (`/plugin install superpowers@claude-plugins-official`) and its skills trigger automatically once installed. It is optional and provides delivery guidance only; CI/source control remains the authoritative enforcement layer. Optional version telemetry can be disabled with `SUPERPOWERS_DISABLE_TELEMETRY`. See <https://github.com/obra/superpowers>.
 - FastMCP's Python package is `fastmcp`; the official TypeScript package is `@prefecthq/fastmcp-ts`.
 - Bumblebee requires Go 1.25+ and is installed via `go install github.com/perplexityai/bumblebee/cmd/bumblebee@latest`.
 - Headroom (`headroom-ai`, Apache 2.0) is a context compression layer for AI agents. The `headroom` CLI ships only with the Python package (Python 3.10+); the npm package is library-only. It fetches runtime assets (ONNX runtime and its compression model) over TLS on first use, so on SSL-inspecting endpoints you may need to trust a corporate CA (and set `HEADROOM_TLS_STRICT=0` under Python 3.13+ strict TLS). See <https://github.com/headroomlabs-ai/headroom>.

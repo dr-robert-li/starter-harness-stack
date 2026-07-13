@@ -50,6 +50,12 @@ For each component:
 - **Upstream:** See upstream project repository for current canonical source and license.
 - **License:** See upstream LICENSE.
 
+### Superpowers
+
+- **Role:** Composable-skills software-development methodology (brainstorming/spec extraction, git-worktree isolation, bite-sized plans, subagent-driven development, red/green TDD, severity-based code review, and branch-finishing cleanup); optional component of the `delivery-method` profile. Installed as a Claude Code plugin (`/plugin install superpowers@claude-plugins-official`); skills trigger automatically once installed. Provides delivery guidance only — CI/source control remains the authoritative enforcement layer. Optional version telemetry can be disabled via `SUPERPOWERS_DISABLE_TELEMETRY`. Verify version and any commercial-support terms at integration time.
+- **Upstream:** <https://github.com/obra/superpowers>.
+- **License:** MIT. See upstream LICENSE for authoritative terms.
+
 ### Claude Code Review
 
 - **Role:** Anthropic's official PR review integration; the spec references its setup documentation as advisory by default. Blocking merge behavior requires a separate CI adapter under the customer's source-control system.
@@ -91,6 +97,12 @@ For each component:
 - **Role:** Context compression layer that reduces tokens in tool outputs, logs, files, retrieval chunks, and conversation history before they reach the model; optional component of the `token-efficiency` profile. Distributed as `headroom-ai`. The Python package (`pip install "headroom-ai[all]"`, Python 3.10+) provides the `headroom` CLI plus library, proxy, agent-wrapping, and MCP-server modes; the npm package (`npm install headroom-ai`) is library-only and ships no CLI. Reversible compression caches original content locally, and runtime assets (ONNX runtime and the compression model) are fetched over TLS at install/runtime, which is relevant on locked-down or SSL-inspecting endpoints. Optional extras (e.g. the `[vector]` HNSW backend) require a C++ toolchain, and LiteLLM-based dollar-savings tracking has its own Python-version constraints. Verify version, extras, and any managed/self-hosted offering terms at integration time.
 - **Upstream:** <https://github.com/headroomlabs-ai/headroom>.
 - **License:** Apache 2.0. See upstream LICENSE for authoritative terms.
+
+### Ponytail
+
+- **Role:** Code-minimization layer that steers Claude Code toward writing less code (reuse over rewrite, stdlib/native features over new dependencies, YAGNI) to reduce generated-output volume and downstream token/cost/time, while explicitly keeping trust-boundary validation, data-loss handling, security, and accessibility out of scope for reduction. **Required component of the `token-efficiency` profile when that profile is enabled by policy** (RTK, Caveman, claude-mem, and Headroom remain individually optional). Installed as a Claude Code plugin via `/plugin marketplace add DietrichGebert/ponytail` then `/plugin install ponytail@ponytail`; the Claude Code plugin runs two small Node.js lifecycle hooks, so `node` must be on `PATH` for always-on activation (skills still function without it, minus auto-activation). Mode is `full` by default and configurable via `/ponytail [lite|full|ultra|off]` or `PONYTAIL_DEFAULT_MODE`; no config file is required. Published reduction figures are vendor-reported and workload-dependent; verify version and behavior at integration time.
+- **Upstream:** <https://github.com/DietrichGebert/ponytail>.
+- **License:** MIT. See upstream LICENSE for authoritative terms.
 
 ### eliate (fallback)
 
