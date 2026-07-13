@@ -47,7 +47,7 @@ It must:
 | Endpoint install and repair | **Build** because no standard endpoint package covers this gap. |
 | Brownfield migration | **Build** because existing products do not safely merge developer AI tool configs. |
 | Drift detection | **Build** because AI coding-tool drift detection is not standardized. |
-| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, Headroom, and local context hygiene. |
+| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, Headroom, Ponytail, and local context hygiene. |
 | Project standards and tests | **Build thin standardization layer** that installs/verifies repo-level standards, canonical commands, and CI check expectations. |
 
 ---
@@ -59,9 +59,9 @@ It must:
 | Profile | Components | Role in v1 | Default requirement |
 |---|---|---|---|
 | **endpoint-core** | installer, managed-settings compiler, gateway verification, drift engine, audit logger, MDM artifact generator, doctor/repair/inventory | Minimal endpoint orchestration layer. | Required for harness operation. |
-| **delivery-method** | BMAD-METHOD, agent-os, GSD Core, roborev, Claude Code Review setup guidance | Planning, repo conventions, spec-driven phase workflow, review/fix/refine loops, and PR-review guidance. | Optional unless admin marks required. |
+| **delivery-method** | BMAD-METHOD, agent-os, GSD Core, roborev, Claude Code Review setup guidance, Superpowers (optional) | Planning, repo conventions, spec-driven phase workflow, review/fix/refine loops, PR-review guidance, and an optional TDD/subagent-driven delivery methodology. | Optional unless admin marks required. |
 | **security-preflight** | security-guidance, Bumblebee, optional eliate fallback | Official Claude security hook, endpoint/MCP/package inventory, fallback guidance where official controls are unavailable. | Optional unless admin marks required. |
-| **token-efficiency** | RTK, Caveman, claude-mem, Headroom | Shell-output compression, adaptive token-efficiency control, selective continuity memory, and context compression. | Optional unless admin marks required. |
+| **token-efficiency** | RTK, Caveman, claude-mem, Headroom, Ponytail | Shell-output compression, adaptive token-efficiency control, selective continuity memory, context compression, and code-minimization guidance. Ponytail is a required component when this profile is enabled; the other tools remain individually optional. | Optional unless admin marks required. |
 | **project-standards-lite** | light boilerplate templates, versioned standards bundle, canonical command declarations, CI template/check declarations | Admin-managed starter standards for projects using the harness. | Optional unless admin marks required. |
 
 Component roles:
@@ -74,12 +74,14 @@ Component roles:
 | **FastMCP** | MCP integration framework and optional local MCP templates. |
 | **roborev** | Review, fix, and refine loop. |
 | **Claude Code Review** | Official PR review integration and setup guidance. Claude Code Review can be used as an advisory check by default; blocking merge behavior requires a separate CI adapter. See Anthropic’s Code Review documentation: <https://code.claude.com/docs/en/code-review>. |
+| **Superpowers** | Optional delivery-method component providing a composable-skills software-development methodology (brainstorming/spec extraction, git-worktree isolation, bite-sized plans, subagent-driven development, red/green TDD, severity-based code review, and branch-finishing cleanup). Installed as a Claude Code plugin (`/plugin install superpowers@claude-plugins-official`); skills trigger automatically once installed. Optional version telemetry can be disabled via `SUPERPOWERS_DISABLE_TELEMETRY`. MIT-licensed and maturing (major-version releases); treat its "mandatory workflow" framing as delivery guidance layered under the authoritative CI/source-control enforcement boundary. See <https://github.com/obra/superpowers>. |
 | **security-guidance** | Official Claude security plugin. Install with `/plugin install security-guidance@claude-plugins-official` where supported. |
 | **Bumblebee** | Endpoint, package, developer-tool, and MCP exposure inventory/preflight scanner. |
 | **RTK** | Shell-output compression and token reduction layer. |
 | **Caveman** | Adaptive token-efficiency controller. Caveman should be treated as context-aware rather than a simple terse-mode toggle. |
 | **claude-mem** | Selective continuity and retrieval memory. |
 | **Headroom** | Context compression layer for AI agents that reduces tokens in tool outputs, logs, files, retrieval chunks, and conversation history before they reach the model, with reversible compression that caches originals locally for on-demand retrieval. Distributed as `headroom-ai` (Apache 2.0); the Python package (`pip install "headroom-ai[all]"`, Python 3.10+) provides the `headroom` CLI, proxy, agent-wrapping, and MCP-server modes, while the npm package (`npm install headroom-ai`) is library-only with no CLI. Fetches runtime assets (ONNX runtime and the compression model) over TLS, which is relevant on locked-down or SSL-inspecting endpoints. See <https://github.com/headroomlabs-ai/headroom>. |
+| **Ponytail** | Code-minimization layer that steers Claude Code toward writing less code — reuse over rewrite, stdlib/native features over new dependencies, and YAGNI — while keeping trust-boundary validation, data-loss handling, security, and accessibility out of scope for reduction. This lowers generated-output volume and downstream token/cost/time, complementing the context-side reducers above. **Required component of the `token-efficiency` profile when that profile is enabled by policy** (RTK, Caveman, claude-mem, and Headroom remain individually optional). Installed as a Claude Code plugin (`/plugin marketplace add DietrichGebert/ponytail` then `/plugin install ponytail@ponytail`); the Claude Code plugin runs two small Node.js lifecycle hooks, so `node` must be on `PATH` for always-on activation (the skills still function without it, just without auto-activation). Mode is selectable via `/ponytail [lite|full|ultra|off]` (default `full`) or `PONYTAIL_DEFAULT_MODE`; no config file is required. MIT-licensed; treat its published reduction benchmarks as vendor-reported and workload-dependent. See <https://github.com/DietrichGebert/ponytail>. |
 | **eliate** | Optional fallback if official Claude plugin/security mechanisms are unavailable or insufficient. Not part of the default path. |
 
 ---
@@ -94,7 +96,7 @@ Component roles:
 2. **Claude Code baseline configurator** that emits native managed-settings artifacts for local settings, plugins, hooks, and conventions.
 3. **Cloudflare AI Gateway enforcer** for endpoint routing.
 4. **Local posture checker** for plugins, MCP servers, permissions, token-efficiency tools, and brownfield drift.
-5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, Headroom, prompt/output defaults, and session hygiene.
+5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, Headroom, Ponytail, prompt/output defaults, and session hygiene.
 6. **OTel-compatible or SIEM-friendly audit emitter** for session, admin, unsafe-action, drift, and gateway events.
 7. **MDM-native artifact generator** that remains MDM-agnostic while producing deployable files/scripts for common MDMs.
 8. **Developer repair tool** that provides `doctor`, `repair`, `inventory`, and `explain-policy` commands.
@@ -694,6 +696,7 @@ Install and configure:
 - Caveman as adaptive context/token controller.
 - claude-mem as selective retrieval memory.
 - Headroom as a context compression layer for tool outputs, logs, files, retrieval chunks, and conversation history, with reversible compression backed by a local original cache.
+- Ponytail as a code-minimization layer that reduces the volume of generated code (and its downstream tokens/cost/time) while preserving safety, security, and accessibility guardrails. Ponytail is required whenever the token-efficiency profile is enabled by policy.
 - Baseline prompt/output guidance for concise default behavior.
 - Session handoff summaries for long tasks.
 
@@ -708,6 +711,9 @@ Example:
     "install_caveman": true,
     "install_claude_mem": true,
     "install_headroom": true,
+    "install_ponytail": true,
+    "ponytail_required": true,
+    "ponytail_default_mode": "full",
     "default_output_style": "concise",
     "handoff_summary_required": true,
     "max_thinking_tokens": 10000,
@@ -718,7 +724,7 @@ Example:
 
 ### Guardrail note
 
-RTK, Caveman, claude-mem, and Headroom alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift. Headroom warrants extra attention because it fetches runtime assets (ONNX runtime and its compression model) over TLS and caches original, uncompressed content locally to support reversible retrieval; on locked-down or SSL-inspecting endpoints the asset fetch may require trusting a corporate CA, and the local original cache should be covered by the same redaction and privacy rules as other context stores.
+RTK, Caveman, claude-mem, and Headroom alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift. Headroom warrants extra attention because it fetches runtime assets (ONNX runtime and its compression model) over TLS and caches original, uncompressed content locally to support reversible retrieval; on locked-down or SSL-inspecting endpoints the asset fetch may require trusting a corporate CA, and the local original cache should be covered by the same redaction and privacy rules as other context stores. Ponytail shapes generated output rather than context: it steers the model toward less code and installs as a Claude Code plugin whose always-on activation runs two small Node.js lifecycle hooks (`node` on `PATH`), so audit its plugin/marketplace install state, selected mode, and hook presence. Ponytail explicitly excludes trust-boundary validation, data-loss handling, security, and accessibility from reduction, but its install state should still be tracked as part of the token-efficiency profile because it is required whenever that profile is enabled.
 
 ---
 
@@ -914,6 +920,7 @@ admin_profile: "project-standards-lite"
 | **agent-os** | Optional delivery-method profile component for durable repo conventions, architecture standards, naming rules, and coding expectations. |
 | **BMAD-METHOD** | Optional delivery-method profile component for planning, acceptance criteria, stories, architecture, and definition of done. |
 | **roborev** | Optional delivery-method profile component for automated review/fix/refine loops before PR submission. |
+| **Superpowers** | Optional delivery-method profile component providing a composable-skills TDD/subagent-driven development methodology; delivery guidance only, never the authoritative test/standards enforcement layer. |
 | **Claude Code Review** | Provides PR-level review signal where configured. |
 | **Claude managed settings** | Controls Claude Code permissions, hooks, MCP restrictions, and bypass-mode behavior. |
 | **CI/source control** | Provides authoritative test and standards enforcement. |
@@ -1333,16 +1340,18 @@ This manifest must not be treated as a replacement for Claude Code managed setti
     "gsd_core": {"profile": "delivery_method", "state": "optional"},
     "fastmcp": {"profile": "delivery_method", "state": "optional"},
     "roborev": {"profile": "delivery_method", "state": "optional"},
+    "superpowers": {"profile": "delivery_method", "state": "optional"},
     "security_guidance": {"profile": "security_preflight", "state": "optional"},
     "bumblebee": {"profile": "security_preflight", "state": "optional"},
     "rtk": {"profile": "token_efficiency", "state": "optional"},
     "caveman": {"profile": "token_efficiency", "state": "optional"},
     "claude_mem": {"profile": "token_efficiency", "state": "optional"},
-    "headroom": {"profile": "token_efficiency", "state": "optional"}
+    "headroom": {"profile": "token_efficiency", "state": "optional"},
+    "ponytail": {"profile": "token_efficiency", "state": "required_when_profile_enabled"}
   },
   "plugins": {
     "required": ["security-guidance@claude-plugins-official"],
-    "allow": ["security-guidance@claude-plugins-official", "caveman"],
+    "allow": ["security-guidance@claude-plugins-official", "caveman", "ponytail@ponytail", "superpowers@claude-plugins-official"],
     "deny": []
   },
   "mcp": {
@@ -1356,6 +1365,9 @@ This manifest must not be treated as a replacement for Claude Code managed setti
     "install_caveman": true,
     "install_claude_mem": true,
     "install_headroom": true,
+    "install_ponytail": true,
+    "ponytail_required": true,
+    "ponytail_default_mode": "full",
     "default_output_style": "concise",
     "handoff_summary_required": true
   },
@@ -1540,12 +1552,14 @@ Build admin-policy-driven installers/checkers for optional profiles and componen
 - GSD Core.
 - FastMCP.
 - roborev.
+- Superpowers.
 - security-guidance.
 - Bumblebee.
 - RTK.
 - Caveman.
 - claude-mem.
 - Headroom.
+- Ponytail.
 
 ### Phase 4: Gateway and wrapper
 
@@ -1626,8 +1640,9 @@ Build:
 
 ### Token efficiency
 
-- RTK, Caveman, claude-mem, and Headroom install state is detectable.
+- RTK, Caveman, claude-mem, Headroom, and Ponytail install state is detectable.
 - Token-efficiency tools are installed or reported missing when the token-efficiency profile is required by admin policy.
+- Ponytail is present (installed or reported missing) whenever the token-efficiency profile is enabled, since it is a required component of that profile.
 - Handoff-summary guidance is present when the token-efficiency profile is enabled.
 
 ### Project standards lite profile
