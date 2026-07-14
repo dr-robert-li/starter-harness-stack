@@ -47,7 +47,7 @@ It must:
 | Endpoint install and repair | **Build** because no standard endpoint package covers this gap. |
 | Brownfield migration | **Build** because existing products do not safely merge developer AI tool configs. |
 | Drift detection | **Build** because AI coding-tool drift detection is not standardized. |
-| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, Headroom, Ponytail, and local context hygiene. |
+| Token-efficiency bootstrap | **Build thin integration** for RTK, Caveman, claude-mem, Headroom, Ponytail, optional pxpipe, and local context hygiene. |
 | Project standards and tests | **Build thin standardization layer** that installs/verifies repo-level standards, canonical commands, and CI check expectations. |
 
 ---
@@ -61,7 +61,7 @@ It must:
 | **endpoint-core** | installer, managed-settings compiler, gateway verification, drift engine, audit logger, MDM artifact generator, doctor/repair/inventory | Minimal endpoint orchestration layer. | Required for harness operation. |
 | **delivery-method** | BMAD-METHOD, agent-os, GSD Core, roborev, Claude Code Review setup guidance, Superpowers (optional) | Planning, repo conventions, spec-driven phase workflow, review/fix/refine loops, PR-review guidance, and an optional TDD/subagent-driven delivery methodology. | Optional unless admin marks required. |
 | **security-preflight** | security-guidance, Bumblebee, optional eliate fallback | Official Claude security hook, endpoint/MCP/package inventory, fallback guidance where official controls are unavailable. | Optional unless admin marks required. |
-| **token-efficiency** | RTK, Caveman, claude-mem, Headroom, Ponytail | Shell-output compression, adaptive token-efficiency control, selective continuity memory, context compression, and code-minimization guidance. Ponytail is a required component when this profile is enabled; the other tools remain individually optional. | Optional unless admin marks required. |
+| **token-efficiency** | RTK, Caveman, claude-mem, Headroom, Ponytail, pxpipe (optional subcomponent) | Shell-output compression, adaptive token-efficiency control, selective continuity memory, context compression, code-minimization guidance, and an optional image-based context-compression proxy. Ponytail is a required component when this profile is enabled; RTK, Caveman, claude-mem, and Headroom remain individually optional; pxpipe stays off unless an admin explicitly enables it as an optional subcomponent. | Optional unless admin marks required. |
 | **project-standards-lite** | light boilerplate templates, versioned standards bundle, canonical command declarations, CI template/check declarations | Admin-managed starter standards for projects using the harness. | Optional unless admin marks required. |
 
 Component roles:
@@ -82,6 +82,7 @@ Component roles:
 | **claude-mem** | Selective continuity and retrieval memory. |
 | **Headroom** | Context compression layer for AI agents that reduces tokens in tool outputs, logs, files, retrieval chunks, and conversation history before they reach the model, with reversible compression that caches originals locally for on-demand retrieval. Distributed as `headroom-ai` (Apache 2.0); the Python package (`pip install "headroom-ai[all]"`, Python 3.10+) provides the `headroom` CLI, proxy, agent-wrapping, and MCP-server modes, while the npm package (`npm install headroom-ai`) is library-only with no CLI. Fetches runtime assets (ONNX runtime and the compression model) over TLS, which is relevant on locked-down or SSL-inspecting endpoints. See <https://github.com/headroomlabs-ai/headroom>. |
 | **Ponytail** | Code-minimization layer that steers Claude Code toward writing less code — reuse over rewrite, stdlib/native features over new dependencies, and YAGNI — while keeping trust-boundary validation, data-loss handling, security, and accessibility out of scope for reduction. This lowers generated-output volume and downstream token/cost/time, complementing the context-side reducers above. **Required component of the `token-efficiency` profile when that profile is enabled by policy** (RTK, Caveman, claude-mem, and Headroom remain individually optional). Installed as a Claude Code plugin (`/plugin marketplace add DietrichGebert/ponytail` then `/plugin install ponytail@ponytail`); the Claude Code plugin runs two small Node.js lifecycle hooks, so `node` must be on `PATH` for always-on activation (the skills still function without it, just without auto-activation). Mode is selectable via `/ponytail [lite|full|ultra|off]` (default `full`) or `PONYTAIL_DEFAULT_MODE`; no config file is required. MIT-licensed; treat its published reduction benchmarks as vendor-reported and workload-dependent. See <https://github.com/DietrichGebert/ponytail>. |
+| **pxpipe** | Optional, off-by-default image-based context-compression proxy for the `token-efficiency` profile. Runs as a local proxy (`npx pxpipe-proxy`, default `127.0.0.1:47821`, with a dashboard at the same address) that Claude Code is pointed at via `ANTHROPIC_BASE_URL`; it rewrites eligible bulky *input* blocks — large `tool_result` bodies, older collapsed history, and the static system prompt plus tool docs — into PNG images behind a profitability gate, preserving prompt caching and leaving recent turns and model output as text. Vendor-reported reductions are roughly 59–70% end-to-end on dense content (small-n benchmarks, workload-dependent). **Explicitly optional even when the `token-efficiency` profile is enabled; it is installed only when an admin explicitly enables it as an optional subcomponent, and never becomes required.** Strong caveats: rendering is *lossy*, misses surface as silent confabulations rather than errors (no per-glyph confidence), so it reduces the interpretability and human-steering potential of the harness; byte-exact values (IDs, hashes, secrets) must stay text. It is best suited to autonomous or extremely long-running, low-human-intervention tasks and is **not** useful once human prose enters the loop. Requires Node on `PATH`; default model scope is `PXPIPE_MODELS=claude-fable-5` with other models opt-in. Maturity: v0.7.1, rendering research parked as of 2026-07-05, and a dedicated verbatim-risk guard is not yet built. MIT-licensed. See <https://github.com/teamchong/pxpipe>. |
 | **eliate** | Optional fallback if official Claude plugin/security mechanisms are unavailable or insufficient. Not part of the default path. |
 
 ---
@@ -96,7 +97,7 @@ Component roles:
 2. **Claude Code baseline configurator** that emits native managed-settings artifacts for local settings, plugins, hooks, and conventions.
 3. **Cloudflare AI Gateway enforcer** for endpoint routing.
 4. **Local posture checker** for plugins, MCP servers, permissions, token-efficiency tools, and brownfield drift.
-5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, Headroom, Ponytail, prompt/output defaults, and session hygiene.
+5. **Token-efficiency bootstrapper** for RTK, Caveman, claude-mem, Headroom, Ponytail, optional pxpipe, prompt/output defaults, and session hygiene.
 6. **OTel-compatible or SIEM-friendly audit emitter** for session, admin, unsafe-action, drift, and gateway events.
 7. **MDM-native artifact generator** that remains MDM-agnostic while producing deployable files/scripts for common MDMs.
 8. **Developer repair tool** that provides `doctor`, `repair`, `inventory`, and `explain-policy` commands.
@@ -700,6 +701,10 @@ Install and configure:
 - Baseline prompt/output guidance for concise default behavior.
 - Session handoff summaries for long tasks.
 
+Optional, admin-gated:
+
+- pxpipe as an image-based context-compression proxy. It remains **off by default even when the token-efficiency profile is enabled**, and is installed only when an admin explicitly opts in via policy. Because it converts bulky input context into lossy PNG images, it reduces the interpretability and human-steering potential of the harness and should be reserved for autonomous or extremely long-running, low-human-intervention workloads; it offers little value once human prose is in the loop, and byte-exact values must be kept as text.
+
 ### Local policy knobs
 
 Example:
@@ -714,6 +719,8 @@ Example:
     "install_ponytail": true,
     "ponytail_required": true,
     "ponytail_default_mode": "full",
+    "install_pxpipe": false,
+    "pxpipe_models": "claude-fable-5",
     "default_output_style": "concise",
     "handoff_summary_required": true,
     "max_thinking_tokens": 10000,
@@ -724,7 +731,7 @@ Example:
 
 ### Guardrail note
 
-RTK, Caveman, claude-mem, and Headroom alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift. Headroom warrants extra attention because it fetches runtime assets (ONNX runtime and its compression model) over TLS and caches original, uncompressed content locally to support reversible retrieval; on locked-down or SSL-inspecting endpoints the asset fetch may require trusting a corporate CA, and the local original cache should be covered by the same redaction and privacy rules as other context stores. Ponytail shapes generated output rather than context: it steers the model toward less code and installs as a Claude Code plugin whose always-on activation runs two small Node.js lifecycle hooks (`node` on `PATH`), so audit its plugin/marketplace install state, selected mode, and hook presence. Ponytail explicitly excludes trust-boundary validation, data-loss handling, security, and accessibility from reduction, but its install state should still be tracked as part of the token-efficiency profile because it is required whenever that profile is enabled.
+RTK, Caveman, claude-mem, and Headroom alter context shape. Treat them as part of the local context-shaping boundary and audit their install state, version, and config drift. Headroom warrants extra attention because it fetches runtime assets (ONNX runtime and its compression model) over TLS and caches original, uncompressed content locally to support reversible retrieval; on locked-down or SSL-inspecting endpoints the asset fetch may require trusting a corporate CA, and the local original cache should be covered by the same redaction and privacy rules as other context stores. Ponytail shapes generated output rather than context: it steers the model toward less code and installs as a Claude Code plugin whose always-on activation runs two small Node.js lifecycle hooks (`node` on `PATH`), so audit its plugin/marketplace install state, selected mode, and hook presence. Ponytail explicitly excludes trust-boundary validation, data-loss handling, security, and accessibility from reduction, but its install state should still be tracked as part of the token-efficiency profile because it is required whenever that profile is enabled. pxpipe, when an admin opts into it, warrants the strongest guardrails of the profile: it runs as a local proxy that Claude Code is routed through (`ANTHROPIC_BASE_URL`) and rewrites bulky input context into *lossy* PNG images, so misses surface as silent confabulations with no per-glyph confidence — this materially reduces the interpretability and human-steering potential of the harness and is at odds with its audit posture. Route it only through the same gateway-enforcement and audit boundary as other context-shaping tools, keep byte-exact values (IDs, hashes, secrets) as text, scope it to autonomous or extremely long-running low-intervention tasks rather than human-in-the-loop prose work, and audit its proxy/install state, `PXPIPE_MODELS` scope, and off-by-default status. It must never be promoted to a required component.
 
 ---
 
@@ -1368,6 +1375,7 @@ This manifest must not be treated as a replacement for Claude Code managed setti
     "install_ponytail": true,
     "ponytail_required": true,
     "ponytail_default_mode": "full",
+    "install_pxpipe": false,
     "default_output_style": "concise",
     "handoff_summary_required": true
   },
@@ -1560,6 +1568,7 @@ Build admin-policy-driven installers/checkers for optional profiles and componen
 - claude-mem.
 - Headroom.
 - Ponytail.
+- pxpipe (optional, off-by-default; installed only when an admin explicitly opts in).
 
 ### Phase 4: Gateway and wrapper
 
@@ -1643,6 +1652,7 @@ Build:
 - RTK, Caveman, claude-mem, Headroom, and Ponytail install state is detectable.
 - Token-efficiency tools are installed or reported missing when the token-efficiency profile is required by admin policy.
 - Ponytail is present (installed or reported missing) whenever the token-efficiency profile is enabled, since it is a required component of that profile.
+- pxpipe is not installed when the token-efficiency profile is enabled unless an admin has explicitly opted into it; when opted in, its proxy/install state is detectable, and it is never treated as required.
 - Handoff-summary guidance is present when the token-efficiency profile is enabled.
 
 ### Project standards lite profile

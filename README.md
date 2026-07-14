@@ -26,7 +26,7 @@ This repository currently contains the v1 specification and documentation. Imple
 2. **Configuring** Claude Code via its native managed-settings schema.
 3. **Enforcing** Cloudflare AI Gateway routing for Claude Code traffic.
 4. **Checking local posture** of plugins, MCP servers, permissions, token-efficiency tools, and brownfield drift.
-5. **Bootstrapping token-efficiency tools** (RTK, Caveman, claude-mem, Headroom, Ponytail) and session-hygiene defaults.
+5. **Bootstrapping token-efficiency tools** (RTK, Caveman, claude-mem, Headroom, Ponytail, and optional pxpipe) and session-hygiene defaults.
 6. **Emitting OTel-compatible / SIEM-friendly audit logs** for sessions, admin actions, unsafe actions, drift, and gateway events.
 7. **Generating MDM-native artifacts** (Jamf, Kandji, Intune, Mosyle, Workspace ONE, generic scripts) while remaining MDM-agnostic.
 8. **Providing developer repair tools** (`doctor`, `repair`, `inventory`, `explain-policy`).
@@ -45,7 +45,7 @@ It is explicitly **not** a SIEM, DLP platform, custom model gateway, fleet conso
 | MDM deployment | Generate artifacts for MDMs; remain MDM-agnostic. |
 | SIEM / log transport | Emit compatible logs for existing collectors and OS logging. |
 | Endpoint install, repair, drift, audit | Build (endpoint gap). |
-| Token-efficiency bootstrap | Thin integration for RTK, Caveman, claude-mem, Headroom, Ponytail. |
+| Token-efficiency bootstrap | Thin integration for RTK, Caveman, claude-mem, Headroom, Ponytail, and optional pxpipe. |
 | Project standards lite | Thin per-repo boilerplate orchestration; CI remains authoritative. |
 
 ---
@@ -59,7 +59,7 @@ The core stays thin. Profiles are admin-controlled; only `endpoint-core` is requ
 | `endpoint-core` | installer, managed-settings compiler, gateway verification, drift engine, audit logger, MDM artifact generator, doctor/repair/inventory | Required. |
 | `delivery-method` | BMAD-METHOD, agent-os, GSD Core, roborev, Claude Code Review guidance, Superpowers (optional) | Optional. |
 | `security-preflight` | security-guidance, Bumblebee, optional eliate fallback | Optional. |
-| `token-efficiency` | RTK, Caveman, claude-mem, Headroom, Ponytail (required when profile enabled) | Optional. |
+| `token-efficiency` | RTK, Caveman, claude-mem, Headroom, Ponytail (required when profile enabled), pxpipe (optional, off by default) | Optional. |
 | `project-standards-lite` | versioned standards bundle, canonical command declarations, CI template/check declarations | Optional. |
 
 See `PROJECT_SPEC.md` for component responsibilities and policy-driven optionality.

@@ -43,6 +43,14 @@ rtk init --global
 pipx install "headroom-ai[all]"
 # or: uv tool install "headroom-ai[all]"
 
+# OPTIONAL, admin-opt-in only: pxpipe image-based context-compression proxy.
+# OFF by default even when the token-efficiency profile is enabled. Only enable for
+# autonomous / extremely long-running, low-human-intervention tasks; it is lossy and
+# reduces interpretability and steering, so it is not useful once human prose is involved.
+# Run the proxy, then point Claude Code at it:
+#   npx pxpipe-proxy                                   # proxy + dashboard on 127.0.0.1:47821
+#   ANTHROPIC_BASE_URL=http://127.0.0.1:47821 claude   # scope models via PXPIPE_MODELS
+
 # 4. FastMCP
 # Python package
 pipx install fastmcp
@@ -87,3 +95,4 @@ Run these inside a Claude Code session, not in your normal shell:
 - FastMCP's Python package is `fastmcp`; the official TypeScript package is `@prefecthq/fastmcp-ts`.
 - Bumblebee requires Go 1.25+ and is installed via `go install github.com/perplexityai/bumblebee/cmd/bumblebee@latest`.
 - Headroom (`headroom-ai`, Apache 2.0) is a context compression layer for AI agents. The `headroom` CLI ships only with the Python package (Python 3.10+); the npm package is library-only. It fetches runtime assets (ONNX runtime and its compression model) over TLS on first use, so on SSL-inspecting endpoints you may need to trust a corporate CA (and set `HEADROOM_TLS_STRICT=0` under Python 3.13+ strict TLS). See <https://github.com/headroomlabs-ai/headroom>.
+- pxpipe (MIT) is an **optional, off-by-default** image-based context-compression proxy for the token-efficiency stack. It runs locally (`npx pxpipe-proxy`, default `127.0.0.1:47821`, dashboard at the same address; requires `node` on `PATH`) and Claude Code is routed through it via `ANTHROPIC_BASE_URL`. It rewrites bulky *input* blocks — large tool results, older collapsed history, and the static system prompt/tool docs — into PNG images behind a profitability gate, preserving prompt caching and leaving recent turns and model output as text; vendor-reported reductions are ~59–70% on dense content (small-n, workload-dependent). **Strong caveats:** rendering is lossy and misses are silent confabulations (no per-glyph confidence), so it reduces the harness's interpretability and human-steering potential — keep byte-exact values (IDs, hashes, secrets) as text, reserve it for autonomous or extremely long-running low-intervention tasks, and do not use it when human prose is in the loop. It is optional even when the token-efficiency profile is enabled and is installed only when an admin explicitly opts in; it never becomes required. Default model scope is `PXPIPE_MODELS=claude-fable-5` (other models opt-in). Maturity: v0.7.1, rendering research parked as of 2026-07-05, verbatim-risk guard not yet built. See <https://github.com/teamchong/pxpipe>.
