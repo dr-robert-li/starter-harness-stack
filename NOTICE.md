@@ -104,6 +104,12 @@ For each component:
 - **Upstream:** <https://github.com/DietrichGebert/ponytail>.
 - **License:** MIT. See upstream LICENSE for authoritative terms.
 
+### pxpipe
+
+- **Role:** Optional, off-by-default image-based context-compression proxy for the `token-efficiency` profile. Runs as a local proxy (`npx pxpipe-proxy`, default `127.0.0.1:47821`, with a dashboard at the same address; requires `node` on `PATH`) that Claude Code is routed through via `ANTHROPIC_BASE_URL`. It rewrites eligible bulky *input* blocks — large `tool_result` bodies, older collapsed history, and the static system prompt plus tool docs — into PNG images behind a profitability gate, preserving prompt caching and leaving recent turns and model output as text. **Optional even when the `token-efficiency` profile is enabled; installed only when an admin explicitly enables it as an optional subcomponent, and never required** (Ponytail remains the only required component of that profile). Strong caveats: rendering is lossy and misses surface as silent confabulations with no per-glyph confidence, which reduces the interpretability and human-steering potential of the harness; byte-exact values (IDs, hashes, secrets) must remain text. Best suited to autonomous or extremely long-running, low-human-intervention workloads and not useful once human prose is in the loop. Vendor-reported reductions (~59–70% on dense content) are small-n and workload-dependent; maturity is early (v0.7.1, rendering research parked as of 2026-07-05, dedicated verbatim-risk guard not yet built). Default model scope is `PXPIPE_MODELS=claude-fable-5`, with other models opt-in. Verify version and behavior at integration time.
+- **Upstream:** <https://github.com/teamchong/pxpipe>.
+- **License:** MIT. See upstream LICENSE for authoritative terms.
+
 ### eliate (fallback)
 
 - **Role:** Optional fallback used only when the official Claude plugin/security mechanisms are unavailable or insufficient. Not part of the default installation path.
