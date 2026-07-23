@@ -2,7 +2,7 @@
 
 This document lists the third-party open-source projects, components, and external services referenced, integrated with, or depended upon by `harness-stack` as described in [`PROJECT_SPEC.md`](./PROJECT_SPEC.md).
 
-`harness-stack` itself is proprietary software (see [`LICENSE`](./LICENSE)). The components listed below remain governed by their own licenses. Inclusion in this NOTICE does **not** relicense any third-party component — it documents the references made by the specification and provides pointers to upstream sources where users and reviewers can locate the authoritative license terms.
+`harness-stack` itself is licensed under the Apache License 2.0 (see [`LICENSE`](./LICENSE)). The components listed below remain governed by their own licenses. Inclusion in this NOTICE does **not** relicense any third-party component — it documents the references made by the specification and provides pointers to upstream sources where users and reviewers can locate the authoritative license terms.
 
 If you redistribute a build that bundles any of these components, you are responsible for complying with each component's individual license.
 
