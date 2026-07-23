@@ -118,7 +118,7 @@ sudo harness-stack install \
 
 - [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) — full v1 specification (authoritative).
 - [`CHANGELOG.md`](./CHANGELOG.md) — version history.
-- [`LICENSE`](./LICENSE) — proprietary license terms.
+- [`LICENSE`](./LICENSE) — Apache License 2.0 terms.
 - [`NOTICE.md`](./NOTICE.md) — third-party projects and components referenced by the spec.
 
 ---
@@ -142,4 +142,4 @@ The spec links to several official Anthropic Claude Code documentation pages:
 
 ## License
 
-Proprietary. See [`LICENSE`](./LICENSE). Third-party projects referenced by the spec are listed in [`NOTICE.md`](./NOTICE.md).
+Licensed under the Apache License 2.0. See [`LICENSE`](./LICENSE). Third-party projects referenced by the spec are listed in [`NOTICE.md`](./NOTICE.md).
